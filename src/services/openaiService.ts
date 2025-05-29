@@ -68,9 +68,9 @@ export const generateRelatedTopics = async (title: string, content: string): Pro
   const apiKey = getApiKey();
   
   if (!apiKey) {
-    // For demo purposes, return some basic topics based on title analysis
-    console.log('No OpenAI API key found, using basic topic extraction');
-    return extractBasicTopics(title, content);
+    // For demo purposes, return enhanced topics based on content analysis
+    console.log('No OpenAI API key found, using enhanced topic extraction');
+    return extractEnhancedTopics(title, content);
   }
 
   try {
@@ -85,15 +85,26 @@ export const generateRelatedTopics = async (title: string, content: string): Pro
         messages: [
           {
             role: 'system',
-            content: 'You are a helpful assistant that identifies topics and categories for Wikipedia articles. Provide a list of 8-10 related topics that this article could fall under or be related to. Return only the topic names, one per line, without numbering or bullet points.'
+            content: `You are an expert at identifying diverse, meaningful topics related to Wikipedia articles. Generate 8-10 specific, actionable topics that someone interested in this article would want to explore further.
+
+GUIDELINES:
+- Focus on specific concepts, fields, applications, and related phenomena
+- Avoid generic terms like "History of X", "X studies", "Research on X"
+- Include scientific fields, related technologies, key figures, applications, and interdisciplinary connections
+- Make topics specific enough to correspond to actual Wikipedia articles
+- Prioritize topics that represent different aspects and perspectives
+- Format as proper nouns when appropriate
+
+GOOD EXAMPLES: "Quantum entanglement", "Marie Curie", "CRISPR gene editing", "Urban planning", "Behavioral economics"
+BAD EXAMPLES: "Physics studies", "History of science", "Research methods", "General theory"`
           },
           {
             role: 'user',
-            content: `Based on this Wikipedia article titled "${title}" with the following content: ${content}\n\nGenerate related topics and categories that someone interested in this article might also want to explore.`
+            content: `Article: "${title}"\n\nContent: ${content}\n\nGenerate specific, diverse topics (not generic "studies" or "history" terms) that would interest readers of this article. Return only topic names, one per line.`
           }
         ],
         max_tokens: 200,
-        temperature: 0.5,
+        temperature: 0.7,
       }),
     });
 
@@ -104,54 +115,112 @@ export const generateRelatedTopics = async (title: string, content: string): Pro
     const data = await response.json();
     const topicsText = data.choices[0]?.message?.content || '';
     
-    // Parse the response into an array of topics
+    // Parse and filter the response
     const topics = topicsText
       .split('\n')
       .map((topic: string) => topic.trim())
       .filter((topic: string) => topic.length > 0 && !topic.match(/^\d+\./) && topic !== title)
+      .filter((topic: string) => !isGenericTopic(topic))
       .slice(0, 10);
     
-    return topics;
+    return topics.length > 0 ? topics : extractEnhancedTopics(title, content);
   } catch (error) {
     console.error('Error calling OpenAI API for topics:', error);
-    return extractBasicTopics(title, content);
+    return extractEnhancedTopics(title, content);
   }
 };
 
-const extractBasicTopics = (title: string, content: string): string[] => {
-  // Basic topic extraction based on common patterns
-  const topics: string[] = [];
-  
-  // Extract potential topics from title
-  const titleWords = title.split(' ').filter(word => word.length > 3);
-  
-  // Look for category-like terms in content
-  const categoryPatterns = [
-    /category:\s*([^,\n]+)/gi,
-    /type of\s+([^,\n]+)/gi,
-    /related to\s+([^,\n]+)/gi,
-    /part of\s+([^,\n]+)/gi
+const isGenericTopic = (topic: string): boolean => {
+  const genericPatterns = [
+    /\bstudies?\b/i,
+    /\bhistory of\b/i,
+    /\bresearch\b/i,
+    /\banalysis\b/i,
+    /\btheory\b$/i,
+    /\bmethods?\b/i,
+    /\bapproaches?\b/i,
+    /\bgeneral\b/i
   ];
   
-  categoryPatterns.forEach(pattern => {
-    const matches = content.match(pattern);
-    if (matches) {
-      matches.forEach(match => {
-        const topic = match.replace(pattern, '$1').trim();
-        if (topic.length > 3 && topic.length < 50) {
-          topics.push(topic);
-        }
-      });
+  return genericPatterns.some(pattern => pattern.test(topic));
+};
+
+const extractEnhancedTopics = (title: string, content: string): string[] => {
+  const topics: Set<string> = new Set();
+  
+  // Extract proper nouns and capitalize them properly
+  const properNouns = content.match(/\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\b/g) || [];
+  properNouns.forEach(noun => {
+    if (noun.length > 3 && noun !== title && !isCommonWord(noun)) {
+      topics.add(noun);
     }
   });
   
-  // Add some generic topics based on title
-  if (titleWords.length > 0) {
-    topics.push(`${titleWords[0]} studies`);
-    topics.push(`History of ${titleWords[0]}`);
+  // Extract scientific and technical terms
+  const technicalTerms = content.match(/\b[a-z]+(?:ology|ography|ometry|physics|chemistry|biology|ics|ism|tion)\b/gi) || [];
+  technicalTerms.forEach(term => {
+    if (term.length > 5) {
+      topics.add(capitalizeFirst(term));
+    }
+  });
+  
+  // Extract compound terms with specific patterns
+  const compoundTerms = content.match(/\b[A-Z][a-z]+\s+(?:effect|principle|law|theory|model|system|process|method|technique)\b/g) || [];
+  compoundTerms.forEach(term => topics.add(term));
+  
+  // Extract field-specific patterns
+  const fieldPatterns = [
+    /\b(?:quantum|molecular|cellular|digital|artificial|machine|computer|environmental|social|economic|political)\s+[a-z]+/gi,
+    /\b[A-Z][a-z]+\s+(?:engineering|science|technology|computing|mathematics|physics|chemistry|biology)/gi
+  ];
+  
+  fieldPatterns.forEach(pattern => {
+    const matches = content.match(pattern) || [];
+    matches.forEach(match => topics.add(match));
+  });
+  
+  // Add some contextual topics based on content analysis
+  if (content.toLowerCase().includes('computer') || content.toLowerCase().includes('algorithm')) {
+    topics.add('Computer Science');
+    topics.add('Artificial Intelligence');
   }
   
-  return topics.slice(0, 8);
+  if (content.toLowerCase().includes('cell') || content.toLowerCase().includes('genetic')) {
+    topics.add('Molecular Biology');
+    topics.add('Genetics');
+  }
+  
+  if (content.toLowerCase().includes('energy') || content.toLowerCase().includes('force')) {
+    topics.add('Physics');
+    topics.add('Thermodynamics');
+  }
+  
+  if (content.toLowerCase().includes('economic') || content.toLowerCase().includes('market')) {
+    topics.add('Economics');
+    topics.add('Market Theory');
+  }
+  
+  // Convert to array and filter
+  const topicArray = Array.from(topics)
+    .filter(topic => !isGenericTopic(topic))
+    .filter(topic => topic.length > 3 && topic.length < 50)
+    .slice(0, 8);
+  
+  return topicArray;
+};
+
+const isCommonWord = (word: string): boolean => {
+  const commonWords = new Set([
+    'The', 'This', 'That', 'These', 'Those', 'When', 'Where', 'Why', 'How', 'What',
+    'Many', 'Some', 'Most', 'All', 'Other', 'Such', 'More', 'Less', 'Very', 'Much',
+    'Also', 'Only', 'Just', 'Even', 'Still', 'Now', 'Then', 'Here', 'There',
+    'First', 'Second', 'Last', 'Next', 'Previous', 'New', 'Old', 'Large', 'Small'
+  ]);
+  return commonWords.has(word);
+};
+
+const capitalizeFirst = (str: string): string => {
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 };
 
 const truncateToSentences = (text: string, maxSentences: number): string => {
