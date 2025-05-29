@@ -21,6 +21,7 @@ interface Article {
   sections?: Array<{
     title: string;
     content: string;
+    originalContent: string;
     summary?: string;
   }>;
 }
