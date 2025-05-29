@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, ArrowLeft, Loader2, Sparkles, ExternalLink } from 'lucide-react';
@@ -186,50 +187,60 @@ const ArticleDisplay: React.FC<ArticleDisplayProps> = ({
             </a>
           </div>
 
-          {/* Related Articles Panel */}
-          {relatedArticles.length > 0 && (
-            <div className="pt-8 border-t border-gray-200">
-              <div className="bg-gray-50 rounded-lg p-6">
-                <h3 className="text-xl font-medium text-gray-900 mb-4 flex items-center">
-                  <ExternalLink className="mr-2 h-5 w-5" />
-                  Related Articles
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                  {relatedArticles.map((articleTitle, index) => (
-                    <a
-                      key={index}
-                      href={`https://en.wikipedia.org/wiki/${encodeURIComponent(articleTitle.replace(/ /g, '_'))}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 hover:text-blue-700 hover:bg-white px-3 py-2 rounded transition-colors text-sm border border-transparent hover:border-blue-200"
-                    >
-                      {articleTitle}
-                    </a>
-                  ))}
-                </div>
+          {/* Bottom Section with Related Articles and Similar Next Button */}
+          <div className="pt-8 border-t border-gray-200">
+            <div className="grid grid-cols-3 gap-6 items-start">
+              {/* Related Articles Panel - Left */}
+              <div className="col-span-1">
+                {relatedArticles.length > 0 && (
+                  <div className="bg-gray-50 rounded-lg p-6 h-full">
+                    <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                      <ExternalLink className="mr-2 h-4 w-4" />
+                      Related Articles
+                    </h3>
+                    <div className="space-y-2">
+                      {relatedArticles.slice(0, 8).map((articleTitle, index) => (
+                        <a
+                          key={index}
+                          href={`https://en.wikipedia.org/wiki/${encodeURIComponent(articleTitle.replace(/ /g, '_'))}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="block text-blue-600 hover:text-blue-700 hover:bg-white px-3 py-2 rounded transition-colors text-sm border border-transparent hover:border-blue-200"
+                        >
+                          {articleTitle}
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Similar Next Button - Center */}
+              <div className="col-span-1 flex justify-center items-center">
+                <Button
+                  onClick={onRelated}
+                  disabled={isLoading}
+                  className="px-8 py-6 text-lg font-medium bg-purple-600 hover:bg-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                      Finding related article...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="mr-2 h-5 w-5" />
+                      Similar Next
+                    </>
+                  )}
+                </Button>
+              </div>
+
+              {/* Reserved Space for Future Panel - Right */}
+              <div className="col-span-1">
+                {/* Space reserved for future panel */}
               </div>
             </div>
-          )}
-
-          {/* Related Article Button */}
-          <div className="text-center pt-8">
-            <Button
-              onClick={onRelated}
-              disabled={isLoading}
-              className="px-8 py-6 text-lg font-medium bg-purple-600 hover:bg-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                  Finding related article...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="mr-2 h-5 w-5" />
-                  Similar Next
-                </>
-              )}
-            </Button>
           </div>
         </article>
       </div>
