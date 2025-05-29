@@ -3,15 +3,18 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Loader2, Sparkles } from 'lucide-react';
 import RelatedArticles from './RelatedArticles';
+import RelatedTopics from './RelatedTopics';
 
 interface BottomSectionProps {
   relatedArticles: string[];
+  relatedTopics: string[];
   onRelated: () => void;
   isLoading: boolean;
 }
 
 const BottomSection: React.FC<BottomSectionProps> = ({
   relatedArticles,
+  relatedTopics,
   onRelated,
   isLoading
 }) => {
@@ -45,9 +48,9 @@ const BottomSection: React.FC<BottomSectionProps> = ({
             </Button>
           </div>
 
-          {/* Reserved Space for Future Panel - Right */}
+          {/* Related Topics Panel - Right */}
           <div className="col-span-1">
-            {/* Space reserved for future panel */}
+            <RelatedTopics topics={relatedTopics} />
           </div>
         </div>
       </div>

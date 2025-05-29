@@ -1,9 +1,9 @@
-
 import React, { useState } from 'react';
 import ArticleHeader from './ArticleHeader';
 import ArticleContent from './ArticleContent';
 import BottomSection from './BottomSection';
 import { useRelatedArticles } from '@/hooks/useRelatedArticles';
+import { useRelatedTopics } from '@/hooks/useRelatedTopics';
 
 interface Article {
   title: string;
@@ -45,6 +45,7 @@ const ArticleDisplay: React.FC<ArticleDisplayProps> = ({
 }) => {
   const [isLoadingNext, setIsLoadingNext] = useState(false);
   const relatedArticles = useRelatedArticles(article);
+  const relatedTopics = useRelatedTopics(article);
 
   const handleNext = async () => {
     setIsLoadingNext(true);
@@ -65,6 +66,7 @@ const ArticleDisplay: React.FC<ArticleDisplayProps> = ({
       
       <BottomSection
         relatedArticles={relatedArticles}
+        relatedTopics={relatedTopics}
         onRelated={onRelated}
         isLoading={isLoading}
       />
