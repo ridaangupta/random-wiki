@@ -16,6 +16,7 @@ export interface WikipediaArticle {
   sections?: Array<{
     title: string;
     content: string;
+    originalContent: string;
     summary?: string;
   }>;
 }
@@ -148,11 +149,11 @@ export const fetchArticleContent = async (title: string): Promise<string> => {
   }
 };
 
-export const parseArticleHTML = (html: string): Array<{ title: string; content: string }> => {
+export const parseArticleHTML = (html: string): Array<{ title: string; content: string; originalContent: string }> => {
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, 'text/html');
   
-  const sections: Array<{ title: string; content: string }> = [];
+  const sections: Array<{ title: string; content: string; originalContent: string }> = [];
   
   // Get all section headings and content
   const headings = doc.querySelectorAll('h2, h3');
@@ -166,12 +167,14 @@ export const parseArticleHTML = (html: string): Array<{ title: string; content: 
     }
     
     let content = '';
+    let originalContent = '';
     let currentElement = heading.nextElementSibling;
     
     // Collect content until the next heading
     while (currentElement && !currentElement.matches('h2, h3')) {
       if (currentElement.matches('p')) {
         content += currentElement.innerHTML + ' ';
+        originalContent += currentElement.innerHTML + ' ';
       }
       currentElement = currentElement.nextElementSibling;
     }
@@ -179,7 +182,8 @@ export const parseArticleHTML = (html: string): Array<{ title: string; content: 
     if (content.trim()) {
       sections.push({
         title: sectionTitle,
-        content: content.trim()
+        content: content.trim(),
+        originalContent: originalContent.trim()
       });
     }
   });
@@ -195,7 +199,7 @@ export const processArticle = async (article: WikipediaArticle): Promise<Wikiped
     
     console.log(`Parsed ${sections.length} sections, starting summarization...`);
     
-    // Summarize each section
+    // Summarize each section while preserving original content
     const summarizedSections = await Promise.all(
       sections.map(async (section, index) => {
         try {
