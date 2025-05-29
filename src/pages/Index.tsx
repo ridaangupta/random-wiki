@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import ArticleDisplay from '@/components/ArticleDisplay';
-import { fetchRandomArticle, processArticle } from '@/services/wikipediaService';
+import { fetchRandomArticle, fetchRelatedArticle, processArticle } from '@/services/wikipediaService';
 import { toast } from '@/hooks/use-toast';
 
 const Index = () => {
@@ -34,12 +34,39 @@ const Index = () => {
     }
   };
 
-  const handleNextArticle = () => {
+  const handleNextArticle = async () => {
     if (currentArticle) {
       setArticleHistory(prev => [...prev, currentArticle]);
     }
     setCurrentArticle(null);
-    handleDiscoverArticle();
+    await handleDiscoverArticle();
+  };
+
+  const handleRelatedArticle = async () => {
+    if (!currentArticle) return;
+    
+    setIsLoading(true);
+    try {
+      console.log('Fetching related article...');
+      const article = await fetchRelatedArticle(currentArticle.title);
+      console.log('Fetched related article:', article.title);
+      
+      const processedArticle = await processArticle(article);
+      console.log('Processed related article with', processedArticle.sections?.length || 0, 'sections');
+      
+      // Add current article to history before showing related one
+      setArticleHistory(prev => [...prev, currentArticle]);
+      setCurrentArticle(processedArticle);
+    } catch (error) {
+      console.error('Error fetching related article:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load related article. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handlePreviousArticle = () => {
@@ -55,8 +82,10 @@ const Index = () => {
       <ArticleDisplay 
         article={currentArticle} 
         onNext={handleNextArticle}
+        onRelated={handleRelatedArticle}
         onPrevious={handlePreviousArticle}
         canGoPrevious={articleHistory.length > 0}
+        isLoading={isLoading}
       />
     );
   }

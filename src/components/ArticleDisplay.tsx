@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, ArrowLeft, Loader2 } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Loader2, Sparkles } from 'lucide-react';
 
 interface Article {
   title: string;
@@ -26,15 +26,19 @@ interface Article {
 interface ArticleDisplayProps {
   article: Article;
   onNext: () => void;
+  onRelated: () => void;
   onPrevious: () => void;
   canGoPrevious: boolean;
+  isLoading?: boolean;
 }
 
 const ArticleDisplay: React.FC<ArticleDisplayProps> = ({ 
   article, 
   onNext, 
+  onRelated,
   onPrevious, 
-  canGoPrevious 
+  canGoPrevious,
+  isLoading = false
 }) => {
   const [isLoadingNext, setIsLoadingNext] = useState(false);
 
@@ -152,6 +156,27 @@ const ArticleDisplay: React.FC<ArticleDisplayProps> = ({
               Read full article on Wikipedia
               <ArrowRight className="ml-1 h-4 w-4" />
             </a>
+          </div>
+
+          {/* Related Article Button */}
+          <div className="text-center pt-8">
+            <Button
+              onClick={onRelated}
+              disabled={isLoading}
+              className="px-8 py-6 text-lg font-medium bg-purple-600 hover:bg-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                  Finding related article...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="mr-2 h-5 w-5" />
+                  Something more like this
+                </>
+              )}
+            </Button>
           </div>
         </article>
       </div>

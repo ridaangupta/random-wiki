@@ -1,4 +1,3 @@
-
 import { summarizeText } from './openaiService';
 
 export interface WikipediaArticle {
@@ -44,6 +43,90 @@ export const fetchRandomArticle = async (): Promise<WikipediaArticle> => {
   } catch (error) {
     console.error('Error fetching random article:', error);
     throw error;
+  }
+};
+
+export const fetchRelatedArticle = async (currentTitle: string): Promise<WikipediaArticle> => {
+  try {
+    console.log('Fetching related article for:', currentTitle);
+    
+    // First, try to get the page content to extract categories or related links
+    const searchResponse = await fetch(
+      `https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&prop=categories|links&titles=${encodeURIComponent(currentTitle)}&cllimit=5&pllimit=10`
+    );
+    
+    if (!searchResponse.ok) {
+      throw new Error(`Failed to fetch page info: ${searchResponse.status}`);
+    }
+    
+    const searchData = await searchResponse.json();
+    const page = Object.values(searchData.query.pages)[0] as any;
+    
+    let relatedTitle = null;
+    
+    // Try to find a related article from the links
+    if (page.links && page.links.length > 0) {
+      // Filter out common navigation pages and pick a random related link
+      const filteredLinks = page.links.filter((link: any) => 
+        !link.title.includes(':') && // Exclude special pages
+        !link.title.startsWith('List of') &&
+        link.title !== currentTitle
+      );
+      
+      if (filteredLinks.length > 0) {
+        const randomLink = filteredLinks[Math.floor(Math.random() * filteredLinks.length)];
+        relatedTitle = randomLink.title;
+      }
+    }
+    
+    // If no related link found, try using categories
+    if (!relatedTitle && page.categories && page.categories.length > 0) {
+      const category = page.categories[0].title.replace('Category:', '');
+      const categorySearchResponse = await fetch(
+        `https://en.wikipedia.org/w/api.php?action=query&format=json&origin=*&list=categorymembers&cmtitle=Category:${encodeURIComponent(category)}&cmlimit=20`
+      );
+      
+      if (categorySearchResponse.ok) {
+        const categoryData = await categorySearchResponse.json();
+        const members = categoryData.query.categorymembers.filter((member: any) => 
+          member.title !== currentTitle && !member.title.includes(':')
+        );
+        
+        if (members.length > 0) {
+          const randomMember = members[Math.floor(Math.random() * members.length)];
+          relatedTitle = randomMember.title;
+        }
+      }
+    }
+    
+    // If still no related article, fall back to random
+    if (!relatedTitle) {
+      console.log('No related article found, falling back to random');
+      return await fetchRandomArticle();
+    }
+    
+    console.log('Found related article:', relatedTitle);
+    
+    // Fetch the summary for the related article
+    const summaryResponse = await fetch(`${WIKIPEDIA_API_BASE}/page/summary/${encodeURIComponent(relatedTitle)}`);
+    
+    if (!summaryResponse.ok) {
+      console.log('Failed to fetch related article summary, falling back to random');
+      return await fetchRandomArticle();
+    }
+    
+    const summary = await summaryResponse.json();
+    
+    return {
+      title: summary.title,
+      extract: summary.extract,
+      thumbnail: summary.thumbnail,
+      content_urls: summary.content_urls,
+    };
+  } catch (error) {
+    console.error('Error fetching related article:', error);
+    // Fallback to random article
+    return await fetchRandomArticle();
   }
 };
 
