@@ -155,14 +155,42 @@ export const parseArticleHTML = (html: string): Array<{ title: string; content: 
   
   const sections: Array<{ title: string; content: string; originalContent: string }> = [];
   
+  // Extract lead section (content before first h2)
+  console.log('Extracting lead section...');
+  const firstH2 = doc.querySelector('h2');
+  let leadContent = '';
+  let leadOriginalContent = '';
+  
+  if (firstH2) {
+    let currentElement = doc.body.firstElementChild;
+    while (currentElement && currentElement !== firstH2) {
+      if (currentElement.matches('p, ul, ol, div.mw-parser-output > div')) {
+        leadContent += currentElement.textContent + ' ';
+        leadOriginalContent += currentElement.innerHTML + ' ';
+      }
+      currentElement = currentElement.nextElementSibling;
+    }
+  }
+  
+  if (leadContent.trim()) {
+    sections.push({
+      title: 'Introduction',
+      content: leadContent.trim(),
+      originalContent: leadOriginalContent.trim()
+    });
+    console.log('Added lead section with content length:', leadContent.length);
+  }
+  
   // Get all section headings and content
   const headings = doc.querySelectorAll('h2, h3');
+  console.log(`Found ${headings.length} headings`);
   
   headings.forEach((heading, index) => {
     const sectionTitle = heading.textContent?.trim() || '';
     
     // Skip certain sections that are typically not useful
-    if (sectionTitle.match(/^(References|External links|See also|Notes)$/i)) {
+    if (sectionTitle.match(/^(References|External links|See also|Notes|Bibliography|Further reading)$/i)) {
+      console.log('Skipping section:', sectionTitle);
       return;
     }
     
@@ -170,10 +198,10 @@ export const parseArticleHTML = (html: string): Array<{ title: string; content: 
     let originalContent = '';
     let currentElement = heading.nextElementSibling;
     
-    // Collect content until the next heading
+    // Collect content until the next heading of same or higher level
     while (currentElement && !currentElement.matches('h2, h3')) {
-      if (currentElement.matches('p')) {
-        content += currentElement.innerHTML + ' ';
+      if (currentElement.matches('p, ul, ol, div:not(.navbox)')) {
+        content += currentElement.textContent + ' ';
         originalContent += currentElement.innerHTML + ' ';
       }
       currentElement = currentElement.nextElementSibling;
@@ -185,10 +213,34 @@ export const parseArticleHTML = (html: string): Array<{ title: string; content: 
         content: content.trim(),
         originalContent: originalContent.trim()
       });
+      console.log(`Added section "${sectionTitle}" with content length:`, content.length);
     }
   });
   
-  return sections.slice(0, 5); // Limit to first 5 sections for performance
+  // Fallback: if no sections found, extract from entire body
+  if (sections.length === 0) {
+    console.log('No sections found, extracting from entire body...');
+    const allParagraphs = doc.querySelectorAll('p, ul, ol');
+    let fallbackContent = '';
+    let fallbackOriginalContent = '';
+    
+    allParagraphs.forEach(element => {
+      fallbackContent += element.textContent + ' ';
+      fallbackOriginalContent += element.innerHTML + ' ';
+    });
+    
+    if (fallbackContent.trim()) {
+      sections.push({
+        title: 'Article Content',
+        content: fallbackContent.trim(),
+        originalContent: fallbackOriginalContent.trim()
+      });
+      console.log('Added fallback content with length:', fallbackContent.length);
+    }
+  }
+  
+  console.log(`Final sections count: ${sections.length}`);
+  return sections.slice(0, 8); // Limit to first 8 sections for performance
 };
 
 export const processArticle = async (article: WikipediaArticle): Promise<WikipediaArticle> => {
