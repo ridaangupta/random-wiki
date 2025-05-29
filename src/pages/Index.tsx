@@ -8,6 +8,7 @@ import { toast } from '@/hooks/use-toast';
 
 const Index = () => {
   const [currentArticle, setCurrentArticle] = useState(null);
+  const [articleHistory, setArticleHistory] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleDiscoverArticle = async () => {
@@ -34,12 +35,30 @@ const Index = () => {
   };
 
   const handleNextArticle = () => {
+    if (currentArticle) {
+      setArticleHistory(prev => [...prev, currentArticle]);
+    }
     setCurrentArticle(null);
     handleDiscoverArticle();
   };
 
+  const handlePreviousArticle = () => {
+    if (articleHistory.length > 0) {
+      const previousArticle = articleHistory[articleHistory.length - 1];
+      setArticleHistory(prev => prev.slice(0, -1));
+      setCurrentArticle(previousArticle);
+    }
+  };
+
   if (currentArticle) {
-    return <ArticleDisplay article={currentArticle} onNext={handleNextArticle} />;
+    return (
+      <ArticleDisplay 
+        article={currentArticle} 
+        onNext={handleNextArticle}
+        onPrevious={handlePreviousArticle}
+        canGoPrevious={articleHistory.length > 0}
+      />
+    );
   }
 
   return (
@@ -47,7 +66,7 @@ const Index = () => {
       <div className="text-center space-y-8 max-w-md mx-auto">
         <div className="space-y-4">
           <h1 className="text-4xl font-light text-gray-900 tracking-tight">
-            Wikipedia Explorer
+            🔍 Random Wiki
           </h1>
           <p className="text-lg text-gray-600 font-light">
             Discover fascinating articles from the world's largest encyclopedia
