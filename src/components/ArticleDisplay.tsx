@@ -173,7 +173,7 @@ const ArticleDisplay: React.FC<ArticleDisplayProps> = ({
               ) : (
                 <>
                   <Sparkles className="mr-2 h-5 w-5" />
-                  Next similar to this
+                  Similar Next
                 </>
               )}
             </Button>
