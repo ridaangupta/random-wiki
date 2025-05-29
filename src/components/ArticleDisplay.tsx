@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import ArticleHeader from './ArticleHeader';
 import ArticleContent from './ArticleContent';
@@ -45,7 +46,7 @@ const ArticleDisplay: React.FC<ArticleDisplayProps> = ({
 }) => {
   const [isLoadingNext, setIsLoadingNext] = useState(false);
   const relatedArticles = useRelatedArticles(article);
-  const relatedTopics = useRelatedTopics(article);
+  const { topics: relatedTopics, isLoading: isLoadingTopics } = useRelatedTopics(article);
 
   const handleNext = async () => {
     setIsLoadingNext(true);
@@ -69,6 +70,7 @@ const ArticleDisplay: React.FC<ArticleDisplayProps> = ({
         relatedTopics={relatedTopics}
         onRelated={onRelated}
         isLoading={isLoading}
+        isLoadingTopics={isLoadingTopics}
       />
     </div>
   );

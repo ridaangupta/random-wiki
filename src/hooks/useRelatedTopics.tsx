@@ -1,5 +1,5 @@
 
-import { useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { generateRelatedTopics } from '@/services/openaiService';
 
 interface Article {
@@ -13,9 +13,19 @@ interface Article {
   }>;
 }
 
-export const useRelatedTopics = (article: Article) => {
-  return useMemo(() => {
-    console.log('Generating related topics for:', article.title);
+export const useRelatedTopics = (article: Article | undefined) => {
+  const [topics, setTopics] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (!article) {
+      console.log('No article provided for topic generation');
+      return;
+    }
+
+    console.log('Starting topic generation for:', article.title);
+    setIsLoading(true);
+    setTopics([]); // Clear previous topics
     
     // Create a summary of the article content for topic generation
     let articleSummary = article.extract || '';
@@ -32,16 +42,17 @@ export const useRelatedTopics = (article: Article) => {
     
     // Generate topics asynchronously
     generateRelatedTopics(article.title, articleSummary.substring(0, 1000))
-      .then(topics => {
-        console.log('Generated topics:', topics);
-        return topics;
+      .then(generatedTopics => {
+        console.log('Generated topics:', generatedTopics);
+        setTopics(generatedTopics);
+        setIsLoading(false);
       })
       .catch(error => {
         console.error('Error generating topics:', error);
-        return [];
+        setTopics([]);
+        setIsLoading(false);
       });
-    
-    // Return empty array initially, topics will be generated asynchronously
-    return [];
-  }, [article]);
+  }, [article?.title]); // Depend on article title to regenerate when article changes
+
+  return { topics, isLoading };
 };

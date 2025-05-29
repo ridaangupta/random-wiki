@@ -10,13 +10,15 @@ interface BottomSectionProps {
   relatedTopics: string[];
   onRelated: () => void;
   isLoading: boolean;
+  isLoadingTopics?: boolean;
 }
 
 const BottomSection: React.FC<BottomSectionProps> = ({
   relatedArticles,
   relatedTopics,
   onRelated,
-  isLoading
+  isLoading,
+  isLoadingTopics = false
 }) => {
   return (
     <div className="max-w-4xl mx-auto px-4">
@@ -50,7 +52,7 @@ const BottomSection: React.FC<BottomSectionProps> = ({
 
           {/* Related Topics Panel - Right */}
           <div className="col-span-1">
-            <RelatedTopics topics={relatedTopics} />
+            <RelatedTopics topics={relatedTopics} isLoading={isLoadingTopics} />
           </div>
         </div>
       </div>

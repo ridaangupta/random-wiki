@@ -4,9 +4,10 @@ import { Tag } from 'lucide-react';
 
 interface RelatedTopicsProps {
   topics: string[];
+  isLoading?: boolean;
 }
 
-const RelatedTopics: React.FC<RelatedTopicsProps> = ({ topics }) => {
+const RelatedTopics: React.FC<RelatedTopicsProps> = ({ topics, isLoading = false }) => {
   return (
     <div className="bg-gray-50 rounded-lg p-6 h-full">
       <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
@@ -14,7 +15,11 @@ const RelatedTopics: React.FC<RelatedTopicsProps> = ({ topics }) => {
         Related Topics
       </h3>
       <div className="space-y-2">
-        {topics.length > 0 ? (
+        {isLoading ? (
+          <p className="text-gray-500 text-sm italic px-3 py-2">
+            Generating related topics...
+          </p>
+        ) : topics.length > 0 ? (
           topics.slice(0, 8).map((topic, index) => (
             <a
               key={index}
@@ -28,7 +33,7 @@ const RelatedTopics: React.FC<RelatedTopicsProps> = ({ topics }) => {
           ))
         ) : (
           <p className="text-gray-500 text-sm italic px-3 py-2">
-            Generating related topics...
+            No related topics found
           </p>
         )}
       </div>
