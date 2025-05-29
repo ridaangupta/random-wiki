@@ -1,7 +1,6 @@
-
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, ArrowLeft, Loader2, Sparkles } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Loader2, Sparkles, ExternalLink } from 'lucide-react';
 
 interface Article {
   title: string;
@@ -47,6 +46,35 @@ const ArticleDisplay: React.FC<ArticleDisplayProps> = ({
     await onNext();
     setIsLoadingNext(false);
   };
+
+  // Extract related articles from the content
+  const relatedArticles = useMemo(() => {
+    const links = new Set<string>();
+    
+    // Extract links from sections
+    if (article.sections) {
+      article.sections.forEach(section => {
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = section.content;
+        
+        const anchors = tempDiv.querySelectorAll('a[href*="/wiki/"]');
+        anchors.forEach(anchor => {
+          const href = anchor.getAttribute('href');
+          const title = anchor.textContent?.trim();
+          
+          if (href && title && !href.includes(':') && !href.includes('#')) {
+            // Extract article title from Wikipedia URL
+            const articleTitle = href.split('/wiki/')[1]?.replace(/_/g, ' ');
+            if (articleTitle && articleTitle !== article.title) {
+              links.add(articleTitle);
+            }
+          }
+        });
+      });
+    }
+    
+    return Array.from(links).slice(0, 15); // Limit to 15 related articles
+  }, [article]);
 
   return (
     <div className="min-h-screen bg-white">
@@ -157,6 +185,31 @@ const ArticleDisplay: React.FC<ArticleDisplayProps> = ({
               <ArrowRight className="ml-1 h-4 w-4" />
             </a>
           </div>
+
+          {/* Related Articles Panel */}
+          {relatedArticles.length > 0 && (
+            <div className="pt-8 border-t border-gray-200">
+              <div className="bg-gray-50 rounded-lg p-6">
+                <h3 className="text-xl font-medium text-gray-900 mb-4 flex items-center">
+                  <ExternalLink className="mr-2 h-5 w-5" />
+                  Related Articles
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {relatedArticles.map((articleTitle, index) => (
+                    <a
+                      key={index}
+                      href={`https://en.wikipedia.org/wiki/${encodeURIComponent(articleTitle.replace(/ /g, '_'))}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:text-blue-700 hover:bg-white px-3 py-2 rounded transition-colors text-sm border border-transparent hover:border-blue-200"
+                    >
+                      {articleTitle}
+                    </a>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Related Article Button */}
           <div className="text-center pt-8">
