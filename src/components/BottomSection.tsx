@@ -47,8 +47,8 @@ const BottomSection: React.FC<BottomSectionProps> = ({
             <RelatedArticles articles={relatedArticles} />
           </div>
 
-          {/* Similar Next Button - Center */}
-          <div className="col-span-1 flex justify-center items-center">
+          {/* Similar Next Button and Save Button - Center */}
+          <div className="col-span-1 flex flex-col items-center space-y-4">
             <Button
               onClick={onRelated}
               disabled={isLoading}
@@ -66,17 +66,14 @@ const BottomSection: React.FC<BottomSectionProps> = ({
                 </>
               )}
             </Button>
+            
+            <SaveToCollectionButton article={article} />
           </div>
 
           {/* Related Topics Panel - Right */}
           <div className="col-span-1">
             <RelatedTopics topics={relatedTopics} isLoading={isLoadingTopics} />
           </div>
-        </div>
-
-        {/* Save to Collection Button - Below Similar Next */}
-        <div className="flex justify-center mt-6">
-          <SaveToCollectionButton article={article} />
         </div>
       </div>
     </div>
