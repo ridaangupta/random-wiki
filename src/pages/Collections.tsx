@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,6 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { Plus, Edit2, Trash2, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { articleCache } from '@/services/articleCache';
 
 interface Collection {
   id: string;
@@ -163,6 +163,17 @@ const Collections: React.FC = () => {
     setIsEditModalOpen(true);
   };
 
+  const handleBackToArticles = async () => {
+    try {
+      articleCache.clearCache();
+      articleCache.initializeCache();
+      navigate('/');
+    } catch (error) {
+      console.error('Error preparing new article:', error);
+      navigate('/');
+    }
+  };
+
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -181,7 +192,7 @@ const Collections: React.FC = () => {
           <div className="flex items-center gap-4">
             <Button 
               variant="outline" 
-              onClick={() => navigate('/')}
+              onClick={handleBackToArticles}
               className="flex items-center gap-2"
             >
               <ArrowLeft className="h-4 w-4" />
