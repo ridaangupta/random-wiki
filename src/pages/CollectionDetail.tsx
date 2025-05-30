@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, ExternalLink, Trash2 } from 'lucide-react';
+import { ArrowLeft, ExternalLink, Trash2, BookOpen } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
@@ -100,6 +100,10 @@ const CollectionDetail: React.FC = () => {
     }
   };
 
+  const getRandomWikiUrl = (title: string) => {
+    return `/?article=${encodeURIComponent(title)}`;
+  };
+
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -164,15 +168,7 @@ const CollectionDetail: React.FC = () => {
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <CardTitle className="text-lg mb-2">
-                        <a 
-                          href={article.article_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="hover:text-blue-600 transition-colors flex items-center gap-2"
-                        >
-                          {article.article_title}
-                          <ExternalLink className="h-4 w-4" />
-                        </a>
+                        {article.article_title}
                       </CardTitle>
                       {article.extract && (
                         <CardDescription className="text-sm">
@@ -181,6 +177,26 @@ const CollectionDetail: React.FC = () => {
                             : article.extract}
                         </CardDescription>
                       )}
+                      <div className="flex items-center gap-2 mt-4">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => navigate(getRandomWikiUrl(article.article_title))}
+                          className="flex items-center gap-2"
+                        >
+                          <BookOpen className="h-4 w-4" />
+                          Random Wiki Summary
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => window.open(article.article_url, '_blank')}
+                          className="flex items-center gap-2"
+                        >
+                          <ExternalLink className="h-4 w-4" />
+                          Wikipedia Article
+                        </Button>
+                      </div>
                     </div>
                     <div className="flex items-start gap-2 ml-4">
                       {article.thumbnail_url && (
