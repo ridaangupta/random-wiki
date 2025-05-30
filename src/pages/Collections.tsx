@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -32,6 +32,11 @@ const Collections: React.FC = () => {
   const [formData, setFormData] = useState({ name: '', description: '' });
   const [preloadedArticle, setPreloadedArticle] = useState(null);
   const [isPreloading, setIsPreloading] = useState(false);
+  
+  // Mobile swipe functionality
+  const containerRef = useRef<HTMLDivElement>(null);
+  const touchStartX = useRef<number>(0);
+  const touchEndX = useRef<number>(0);
 
   useEffect(() => {
     if (user) {
@@ -39,6 +44,51 @@ const Collections: React.FC = () => {
       preloadRandomArticle();
     }
   }, [user]);
+
+  // Handle touch events for swipe gestures
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const handleTouchStart = (e: TouchEvent) => {
+      touchStartX.current = e.touches[0].clientX;
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      touchEndX.current = e.touches[0].clientX;
+    };
+
+    const handleTouchEnd = () => {
+      if (!touchStartX.current || !touchEndX.current) return;
+      
+      const distance = touchStartX.current - touchEndX.current;
+      const minSwipeDistance = 50; // Minimum distance for a swipe
+
+      // Swipe left (go to articles)
+      if (distance > minSwipeDistance && !isPreloading) {
+        handleBackToArticles();
+      }
+      
+      // Swipe right (go to articles)
+      if (distance < -minSwipeDistance && !isPreloading) {
+        handleBackToArticles();
+      }
+
+      // Reset values
+      touchStartX.current = 0;
+      touchEndX.current = 0;
+    };
+
+    container.addEventListener('touchstart', handleTouchStart, { passive: true });
+    container.addEventListener('touchmove', handleTouchMove, { passive: true });
+    container.addEventListener('touchend', handleTouchEnd, { passive: true });
+
+    return () => {
+      container.removeEventListener('touchstart', handleTouchStart);
+      container.removeEventListener('touchmove', handleTouchMove);
+      container.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [isPreloading]);
 
   const preloadRandomArticle = async () => {
     setIsPreloading(true);
@@ -222,9 +272,12 @@ const Collections: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div 
+      ref={containerRef}
+      className="min-h-screen bg-gray-50 touch-pan-y"
+    >
       <div className="max-w-4xl mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
           <div className="flex items-center gap-4">
             <Button 
               variant="outline" 
@@ -235,12 +288,12 @@ const Collections: React.FC = () => {
               <ArrowLeft className="h-4 w-4" />
               {isPreloading ? 'Loading...' : 'Back to Articles'}
             </Button>
-            <h1 className="text-3xl font-bold">My Collections</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold">My Collections</h1>
           </div>
           
           <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
             <DialogTrigger asChild>
-              <Button className="flex items-center gap-2">
+              <Button className="flex items-center gap-2 w-full sm:w-auto">
                 <Plus className="h-4 w-4" />
                 New Collection
               </Button>
@@ -292,7 +345,7 @@ const Collections: React.FC = () => {
             </Button>
           </div>
         ) : (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {collections.map((collection) => (
               <Card 
                 key={collection.id} 
@@ -301,18 +354,18 @@ const Collections: React.FC = () => {
               >
                 <CardHeader>
                   <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <CardTitle className="text-lg flex items-center gap-2">
-                        <BookOpen className="h-5 w-5" />
-                        {collection.name}
+                    <div className="flex-1 min-w-0">
+                      <CardTitle className="text-lg flex items-center gap-2 truncate">
+                        <BookOpen className="h-5 w-5 flex-shrink-0" />
+                        <span className="truncate">{collection.name}</span>
                       </CardTitle>
                       {collection.description && (
-                        <CardDescription className="mt-2">
+                        <CardDescription className="mt-2 line-clamp-2">
                           {collection.description}
                         </CardDescription>
                       )}
                     </div>
-                    <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
+                    <div className="flex gap-1 ml-2" onClick={(e) => e.stopPropagation()}>
                       <Button
                         variant="ghost"
                         size="sm"
@@ -331,7 +384,7 @@ const Collections: React.FC = () => {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex justify-between items-center">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                     <p className="text-sm text-gray-500">
                       Created {new Date(collection.created_at).toLocaleDateString()}
                     </p>
