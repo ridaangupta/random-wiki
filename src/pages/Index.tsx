@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
@@ -16,6 +15,27 @@ const Index = () => {
   useEffect(() => {
     articleCache.initializeCache();
   }, []);
+
+  // Add keyboard navigation
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      // Only handle arrow keys and prevent action if user is typing in an input
+      if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
+        return;
+      }
+
+      if (event.key === 'ArrowRight' && currentArticle && !isLoading) {
+        event.preventDefault();
+        handleNextArticle();
+      } else if (event.key === 'ArrowLeft' && currentArticle && articleHistory.length > 0) {
+        event.preventDefault();
+        handlePreviousArticle();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [currentArticle, articleHistory.length, isLoading]);
 
   const handleDiscoverArticle = async () => {
     setIsLoading(true);
