@@ -41,28 +41,29 @@ const BottomSection: React.FC<BottomSectionProps> = ({
   return (
     <div className="max-w-4xl mx-auto px-4">
       <div className="pt-8 border-t border-gray-200">
-        <div className="grid grid-cols-3 gap-6 items-start">
-          {/* Related Articles Panel - Left */}
-          <div className="col-span-1">
+        {/* Mobile-first responsive layout */}
+        <div className="flex flex-col lg:grid lg:grid-cols-3 gap-6 items-start">
+          {/* Center content first on mobile, left on desktop */}
+          <div className="order-2 lg:order-1 lg:col-span-1 w-full">
             <RelatedArticles articles={relatedArticles} />
           </div>
 
-          {/* Similar Next Button and Save Button - Center */}
-          <div className="col-span-1 flex flex-col items-center space-y-4">
+          {/* Main buttons - always first on mobile, center on desktop */}
+          <div className="order-1 lg:order-2 lg:col-span-1 flex flex-col items-center space-y-3 w-full">
             <Button
               onClick={onRelated}
               disabled={isLoading}
-              className="px-8 py-6 text-lg font-medium bg-purple-600 hover:bg-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+              className="w-full sm:w-auto px-6 sm:px-8 py-4 sm:py-6 text-base sm:text-lg font-medium bg-purple-600 hover:bg-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
             >
               {isLoading ? (
                 <>
-                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                  Finding related article...
+                  <Loader2 className="mr-2 h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
+                  <span className="text-sm sm:text-base">Finding related...</span>
                 </>
               ) : (
                 <>
-                  <Sparkles className="mr-2 h-5 w-5" />
-                  Similar Next
+                  <Sparkles className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
+                  <span className="text-sm sm:text-base">Similar Next</span>
                 </>
               )}
             </Button>
@@ -70,8 +71,8 @@ const BottomSection: React.FC<BottomSectionProps> = ({
             <SaveToCollectionButton article={article} />
           </div>
 
-          {/* Related Topics Panel - Right */}
-          <div className="col-span-1">
+          {/* Right content last on mobile, right on desktop */}
+          <div className="order-3 lg:order-3 lg:col-span-1 w-full">
             <RelatedTopics topics={relatedTopics} isLoading={isLoadingTopics} />
           </div>
         </div>
