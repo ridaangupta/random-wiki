@@ -64,6 +64,7 @@ const ArticleDisplay: React.FC<ArticleDisplayProps> = ({
         onRelated={onRelated}
         isLoading={isLoading}
         isLoadingTopics={isLoadingTopics}
+        article={article}
       />
     </div>
   );

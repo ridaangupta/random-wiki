@@ -4,6 +4,22 @@ import { Button } from '@/components/ui/button';
 import { Loader2, Sparkles } from 'lucide-react';
 import RelatedArticles from './RelatedArticles';
 import RelatedTopics from './RelatedTopics';
+import SaveToCollectionButton from './SaveToCollectionButton';
+
+interface Article {
+  title: string;
+  extract: string;
+  thumbnail?: {
+    source: string;
+    width: number;
+    height: number;
+  };
+  content_urls: {
+    desktop: {
+      page: string;
+    };
+  };
+}
 
 interface BottomSectionProps {
   relatedArticles: string[];
@@ -11,6 +27,7 @@ interface BottomSectionProps {
   onRelated: () => void;
   isLoading: boolean;
   isLoadingTopics?: boolean;
+  article: Article;
 }
 
 const BottomSection: React.FC<BottomSectionProps> = ({
@@ -18,7 +35,8 @@ const BottomSection: React.FC<BottomSectionProps> = ({
   relatedTopics,
   onRelated,
   isLoading,
-  isLoadingTopics = false
+  isLoadingTopics = false,
+  article
 }) => {
   return (
     <div className="max-w-4xl mx-auto px-4">
@@ -54,6 +72,11 @@ const BottomSection: React.FC<BottomSectionProps> = ({
           <div className="col-span-1">
             <RelatedTopics topics={relatedTopics} isLoading={isLoadingTopics} />
           </div>
+        </div>
+
+        {/* Save to Collection Button - Below Similar Next */}
+        <div className="flex justify-center mt-6">
+          <SaveToCollectionButton article={article} />
         </div>
       </div>
     </div>
