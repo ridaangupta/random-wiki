@@ -7,6 +7,7 @@ import { fetchRandomArticle, processArticle } from '@/services/wikipediaService'
 import { articleCache } from '@/services/articleCache';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
+import { useSearchParams } from 'react-router-dom';
 
 const Index = () => {
   const [currentArticle, setCurrentArticle] = useState(null);
@@ -14,11 +15,20 @@ const Index = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const { user } = useAuth();
+  const [searchParams] = useSearchParams();
 
   // Initialize cache when component mounts
   useEffect(() => {
     articleCache.initializeCache();
   }, []);
+
+  // Check for autoload parameter and load article if present
+  useEffect(() => {
+    const shouldAutoload = searchParams.get('autoload') === 'true';
+    if (shouldAutoload && !currentArticle && !isLoading) {
+      handleDiscoverArticle();
+    }
+  }, [searchParams, currentArticle, isLoading]);
 
   // Add keyboard navigation
   useEffect(() => {

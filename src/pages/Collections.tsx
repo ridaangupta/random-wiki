@@ -167,10 +167,10 @@ const Collections: React.FC = () => {
     try {
       articleCache.clearCache();
       articleCache.initializeCache();
-      navigate('/');
+      navigate('/?autoload=true');
     } catch (error) {
       console.error('Error preparing new article:', error);
-      navigate('/');
+      navigate('/?autoload=true');
     }
   };
 
