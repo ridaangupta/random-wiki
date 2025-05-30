@@ -1,9 +1,10 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import ArticleDisplay from '@/components/ArticleDisplay';
-import { fetchRandomArticle, fetchRelatedArticle, processArticle } from '@/services/wikipediaService';
+import { fetchRandomArticle, processArticle } from '@/services/wikipediaService';
+import { articleCache } from '@/services/articleCache';
 import { toast } from '@/hooks/use-toast';
 
 const Index = () => {
@@ -11,24 +12,33 @@ const Index = () => {
   const [articleHistory, setArticleHistory] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Initialize cache when component mounts
+  useEffect(() => {
+    articleCache.initializeCache();
+  }, []);
+
   const handleDiscoverArticle = async () => {
     setIsLoading(true);
     try {
       console.log('Fetching random article...');
-      const article = await fetchRandomArticle();
-      console.log('Fetched article:', article.title);
+      const article = await articleCache.getNextArticle('random');
+      console.log('Got article from cache:', article.title);
       
-      const processedArticle = await processArticle(article);
-      console.log('Processed article with', processedArticle.sections?.length || 0, 'sections');
-      
-      setCurrentArticle(processedArticle);
+      setCurrentArticle(article);
     } catch (error) {
       console.error('Error fetching article:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load article. Please try again.",
-        variant: "destructive",
-      });
+      // Fallback to direct fetch if cache fails
+      try {
+        const article = await fetchRandomArticle();
+        const processedArticle = await processArticle(article);
+        setCurrentArticle(processedArticle);
+      } catch (fallbackError) {
+        toast({
+          title: "Error",
+          description: "Failed to load article. Please try again.",
+          variant: "destructive",
+        });
+      }
     } finally {
       setIsLoading(false);
     }
@@ -38,8 +48,23 @@ const Index = () => {
     if (currentArticle) {
       setArticleHistory(prev => [...prev, currentArticle]);
     }
-    setCurrentArticle(null);
-    await handleDiscoverArticle();
+    
+    setIsLoading(true);
+    try {
+      console.log('Getting next random article from cache...');
+      const article = await articleCache.getNextArticle('random');
+      console.log('Got next article from cache:', article.title);
+      setCurrentArticle(article);
+    } catch (error) {
+      console.error('Error fetching next article:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load next article. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleRelatedArticle = async () => {
@@ -47,16 +72,13 @@ const Index = () => {
     
     setIsLoading(true);
     try {
-      console.log('Fetching related article...');
-      const article = await fetchRelatedArticle(currentArticle.title);
-      console.log('Fetched related article:', article.title);
-      
-      const processedArticle = await processArticle(article);
-      console.log('Processed related article with', processedArticle.sections?.length || 0, 'sections');
+      console.log('Getting related article from cache...');
+      const article = await articleCache.getNextArticle('related', currentArticle.title);
+      console.log('Got related article from cache:', article.title);
       
       // Add current article to history before showing related one
       setArticleHistory(prev => [...prev, currentArticle]);
-      setCurrentArticle(processedArticle);
+      setCurrentArticle(article);
     } catch (error) {
       console.error('Error fetching related article:', error);
       toast({
@@ -74,6 +96,11 @@ const Index = () => {
       const previousArticle = articleHistory[articleHistory.length - 1];
       setArticleHistory(prev => prev.slice(0, -1));
       setCurrentArticle(previousArticle);
+      
+      // Clear cache when going back to avoid confusion
+      articleCache.clearCache();
+      // Reinitialize for future navigation
+      articleCache.initializeCache();
     }
   };
 

@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import ArticleHeader from './ArticleHeader';
 import ArticleContent from './ArticleContent';
 import BottomSection from './BottomSection';
@@ -44,23 +44,16 @@ const ArticleDisplay: React.FC<ArticleDisplayProps> = ({
   canGoPrevious,
   isLoading = false
 }) => {
-  const [isLoadingNext, setIsLoadingNext] = useState(false);
   const relatedArticles = useRelatedArticles(article);
   const { topics: relatedTopics, isLoading: isLoadingTopics } = useRelatedTopics(article);
-
-  const handleNext = async () => {
-    setIsLoadingNext(true);
-    await onNext();
-    setIsLoadingNext(false);
-  };
 
   return (
     <div className="min-h-screen bg-white">
       <ArticleHeader
-        onNext={handleNext}
+        onNext={onNext}
         onPrevious={onPrevious}
         canGoPrevious={canGoPrevious}
-        isLoadingNext={isLoadingNext}
+        isLoadingNext={isLoading}
       />
       
       <ArticleContent article={article} />
