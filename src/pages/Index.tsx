@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
@@ -7,7 +8,7 @@ import { fetchRandomArticle, processArticle } from '@/services/wikipediaService'
 import { articleCache } from '@/services/articleCache';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useLocation } from 'react-router-dom';
 
 const Index = () => {
   const [currentArticle, setCurrentArticle] = useState(null);
@@ -16,11 +17,23 @@ const Index = () => {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const { user } = useAuth();
   const [searchParams] = useSearchParams();
+  const location = useLocation();
 
   // Initialize cache when component mounts
   useEffect(() => {
     articleCache.initializeCache();
   }, []);
+
+  // Check for preloaded article from navigation state
+  useEffect(() => {
+    const preloadedArticle = location.state?.preloadedArticle;
+    if (preloadedArticle) {
+      console.log('Using preloaded article:', preloadedArticle.title);
+      setCurrentArticle(preloadedArticle);
+      // Clear the state to prevent reuse on subsequent navigations
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   // Check for autoload parameter and load article if present
   useEffect(() => {

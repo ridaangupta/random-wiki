@@ -11,6 +11,7 @@ import { toast } from '@/hooks/use-toast';
 import { Plus, Edit2, Trash2, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { articleCache } from '@/services/articleCache';
+import ArticleDisplay from '@/components/ArticleDisplay';
 
 interface Collection {
   id: string;
@@ -29,12 +30,31 @@ const Collections: React.FC = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingCollection, setEditingCollection] = useState<Collection | null>(null);
   const [formData, setFormData] = useState({ name: '', description: '' });
+  const [preloadedArticle, setPreloadedArticle] = useState(null);
+  const [isPreloading, setIsPreloading] = useState(false);
 
   useEffect(() => {
     if (user) {
       fetchCollections();
+      preloadRandomArticle();
     }
   }, [user]);
+
+  const preloadRandomArticle = async () => {
+    setIsPreloading(true);
+    try {
+      console.log('Preloading random article for quick navigation...');
+      articleCache.clearCache();
+      articleCache.initializeCache();
+      const article = await articleCache.getNextArticle('random');
+      setPreloadedArticle(article);
+      console.log('Preloaded article:', article.title);
+    } catch (error) {
+      console.error('Error preloading article:', error);
+    } finally {
+      setIsPreloading(false);
+    }
+  };
 
   const fetchCollections = async () => {
     try {
@@ -163,13 +183,12 @@ const Collections: React.FC = () => {
     setIsEditModalOpen(true);
   };
 
-  const handleBackToArticles = async () => {
-    try {
-      articleCache.clearCache();
-      articleCache.initializeCache();
-      navigate('/?autoload=true');
-    } catch (error) {
-      console.error('Error preparing new article:', error);
+  const handleBackToArticles = () => {
+    if (preloadedArticle) {
+      // Navigate to index with the preloaded article
+      navigate('/', { state: { preloadedArticle } });
+    } else {
+      // Fallback to autoload behavior
       navigate('/?autoload=true');
     }
   };
@@ -194,9 +213,10 @@ const Collections: React.FC = () => {
               variant="outline" 
               onClick={handleBackToArticles}
               className="flex items-center gap-2"
+              disabled={isPreloading}
             >
               <ArrowLeft className="h-4 w-4" />
-              Back to Articles
+              {isPreloading ? 'Loading...' : 'Back to Articles'}
             </Button>
             <h1 className="text-3xl font-bold">My Collections</h1>
           </div>
