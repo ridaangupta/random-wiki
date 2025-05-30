@@ -1,23 +1,30 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Loader2 } from 'lucide-react';
+import { Loader2, User, LogOut, FolderOpen } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import ArticleDisplay from '@/components/ArticleDisplay';
 import AuthModal from '@/components/AuthModal';
 import { fetchRandomArticle, processArticle } from '@/services/wikipediaService';
 import { articleCache } from '@/services/articleCache';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
-import { useSearchParams, useLocation } from 'react-router-dom';
+import { useSearchParams, useLocation, useNavigate } from 'react-router-dom';
 
 const Index = () => {
   const [currentArticle, setCurrentArticle] = useState(null);
   const [articleHistory, setArticleHistory] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const [searchParams] = useSearchParams();
   const location = useLocation();
+  const navigate = useNavigate();
 
   // Initialize cache when component mounts
   useEffect(() => {
@@ -151,6 +158,18 @@ const Index = () => {
     }
   };
 
+  const handleSignOut = async () => {
+    await signOut();
+    toast({
+      title: "Signed out",
+      description: "You have been successfully signed out.",
+    });
+  };
+
+  const handleCollectionsClick = () => {
+    navigate('/collections');
+  };
+
   if (currentArticle) {
     return (
       <ArticleDisplay 
@@ -167,12 +186,32 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-white flex items-center justify-center p-4">
       <div className="text-center space-y-8 max-w-md mx-auto">
-        {/* Sign In Button - Top Right */}
+        {/* User Menu - Top Right */}
         <div className="absolute top-4 right-4">
           {user ? (
-            <div className="text-sm text-gray-600">
-              Welcome, {user.email?.split('@')[0]}!
-            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="flex items-center gap-2">
+                  <User className="h-4 w-4" />
+                  {user.email?.split('@')[0]}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem disabled className="text-xs text-gray-500">
+                  {user.email}
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleCollectionsClick}>
+                  <FolderOpen className="mr-2 h-4 w-4" />
+                  Collections
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleSignOut}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Sign Out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           ) : (
             <Button 
               variant="outline" 
