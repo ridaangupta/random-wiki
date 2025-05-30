@@ -2,14 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import ArticleDisplay from '@/components/ArticleDisplay';
+import AuthModal from '@/components/AuthModal';
 import { fetchRandomArticle, processArticle } from '@/services/wikipediaService';
 import { articleCache } from '@/services/articleCache';
 import { toast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Index = () => {
   const [currentArticle, setCurrentArticle] = useState(null);
   const [articleHistory, setArticleHistory] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const { user } = useAuth();
 
   // Initialize cache when component mounts
   useEffect(() => {
@@ -140,6 +144,23 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-white flex items-center justify-center p-4">
       <div className="text-center space-y-8 max-w-md mx-auto">
+        {/* Sign In Button - Top Right */}
+        <div className="absolute top-4 right-4">
+          {user ? (
+            <div className="text-sm text-gray-600">
+              Welcome, {user.email?.split('@')[0]}!
+            </div>
+          ) : (
+            <Button 
+              variant="outline" 
+              onClick={() => setAuthModalOpen(true)}
+              className="hover:bg-blue-50 hover:border-blue-200 transition-colors"
+            >
+              Sign In
+            </Button>
+          )}
+        </div>
+
         <div className="space-y-4">
           <h1 className="text-4xl font-light text-gray-900 tracking-tight">
             🔍 Random Wiki
@@ -147,6 +168,11 @@ const Index = () => {
           <p className="text-lg text-gray-600 font-light">
             Discover fascinating articles from the world's largest encyclopedia
           </p>
+          {user && (
+            <p className="text-sm text-blue-600">
+              Sign in to save articles to collections
+            </p>
+          )}
         </div>
         
         <Button
@@ -164,6 +190,8 @@ const Index = () => {
           )}
         </Button>
       </div>
+      
+      <AuthModal open={authModalOpen} onOpenChange={setAuthModalOpen} />
     </div>
   );
 };
