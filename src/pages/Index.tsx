@@ -230,8 +230,11 @@ const Index = () => {
           <p className="text-lg text-gray-600 font-light">
             Discover fascinating articles from the world's largest encyclopedia
           </p>
-          {user && (
-            <p className="text-sm text-blue-600">
+          {!user && (
+            <p 
+              className="text-sm text-blue-600 cursor-pointer hover:text-blue-800 transition-colors"
+              onClick={() => setAuthModalOpen(true)}
+            >
               Sign in to save articles to collections
             </p>
           )}
