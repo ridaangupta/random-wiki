@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, ArrowLeft, Loader2, User, LogOut } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Loader2, User, LogOut, FolderOpen } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,6 +12,7 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import AuthModal from './AuthModal';
 import { toast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 
 interface ArticleHeaderProps {
   onNext: () => void;
@@ -28,6 +29,7 @@ const ArticleHeader: React.FC<ArticleHeaderProps> = ({
 }) => {
   const { user, signOut } = useAuth();
   const [authModalOpen, setAuthModalOpen] = useState(false);
+  const navigate = useNavigate();
 
   const handleSignOut = async () => {
     await signOut();
@@ -35,6 +37,10 @@ const ArticleHeader: React.FC<ArticleHeaderProps> = ({
       title: "Signed out",
       description: "You have been successfully signed out.",
     });
+  };
+
+  const handleCollectionsClick = () => {
+    navigate('/collections');
   };
 
   return (
@@ -84,6 +90,11 @@ const ArticleHeader: React.FC<ArticleHeaderProps> = ({
               <DropdownMenuContent align="end" className="w-48">
                 <DropdownMenuItem disabled className="text-xs text-gray-500">
                   {user.email}
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleCollectionsClick}>
+                  <FolderOpen className="mr-2 h-4 w-4" />
+                  Collections
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleSignOut}>
