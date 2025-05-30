@@ -244,7 +244,7 @@ const CollectionDetail: React.FC = () => {
                         <img 
                           src={article.thumbnail_url} 
                           alt={article.article_title}
-                          className="w-12 h-12 sm:w-16 sm:h-16 object-cover rounded"
+                          className="hidden sm:block w-16 h-16 object-cover rounded"
                         />
                       )}
                       <Button
