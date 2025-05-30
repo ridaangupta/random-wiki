@@ -7,6 +7,7 @@ import { ArrowLeft, ExternalLink, Trash2, BookOpen } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import { fetchArticleContent, parseArticleHTML, processArticle } from '@/services/wikipediaService';
 
 interface SavedArticle {
   id: string;
@@ -100,6 +101,43 @@ const CollectionDetail: React.FC = () => {
     }
   };
 
+  const handleRandomWikiSummary = async (article: SavedArticle) => {
+    try {
+      // Create a basic article object from the saved article data
+      const basicArticle = {
+        title: article.article_title,
+        extract: article.extract || '',
+        thumbnail: article.thumbnail_url ? {
+          source: article.thumbnail_url,
+          width: 150,
+          height: 150
+        } : undefined,
+        content_urls: {
+          desktop: {
+            page: article.article_url
+          }
+        }
+      };
+
+      // Process the article to get sections and summaries
+      const processedArticle = await processArticle(basicArticle);
+      
+      // Navigate to home page with the processed article
+      navigate('/', { 
+        state: { 
+          preloadedArticle: processedArticle 
+        } 
+      });
+    } catch (error) {
+      console.error('Error processing article for summary:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load article summary. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const getRandomWikiUrl = (title: string) => {
     return `/?article=${encodeURIComponent(title)}`;
   };
@@ -181,7 +219,7 @@ const CollectionDetail: React.FC = () => {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => navigate(getRandomWikiUrl(article.article_title))}
+                          onClick={() => handleRandomWikiSummary(article)}
                           className="flex items-center gap-2"
                         >
                           <BookOpen className="h-4 w-4" />
