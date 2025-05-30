@@ -8,10 +8,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
-import { Plus, Edit2, Trash2, ArrowLeft } from 'lucide-react';
+import { Plus, Edit2, Trash2, ArrowLeft, BookOpen } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { articleCache } from '@/services/articleCache';
-import ArticleDisplay from '@/components/ArticleDisplay';
 
 interface Collection {
   id: string;
@@ -19,6 +18,7 @@ interface Collection {
   description: string | null;
   created_at: string;
   updated_at: string;
+  article_count?: number;
 }
 
 const Collections: React.FC = () => {
@@ -58,13 +58,30 @@ const Collections: React.FC = () => {
 
   const fetchCollections = async () => {
     try {
-      const { data, error } = await supabase
+      // Fetch collections with article counts
+      const { data: collectionsData, error: collectionsError } = await supabase
         .from('collections')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      setCollections(data || []);
+      if (collectionsError) throw collectionsError;
+
+      // Get article counts for each collection
+      const collectionsWithCounts = await Promise.all(
+        (collectionsData || []).map(async (collection) => {
+          const { count } = await supabase
+            .from('saved_articles')
+            .select('*', { count: 'exact', head: true })
+            .eq('collection_id', collection.id);
+          
+          return {
+            ...collection,
+            article_count: count || 0
+          };
+        })
+      );
+
+      setCollections(collectionsWithCounts);
     } catch (error) {
       console.error('Error fetching collections:', error);
       toast({
@@ -277,18 +294,25 @@ const Collections: React.FC = () => {
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {collections.map((collection) => (
-              <Card key={collection.id} className="hover:shadow-lg transition-shadow">
+              <Card 
+                key={collection.id} 
+                className="hover:shadow-lg transition-shadow cursor-pointer"
+                onClick={() => navigate(`/collections/${collection.id}`)}
+              >
                 <CardHeader>
                   <div className="flex items-start justify-between">
-                    <div>
-                      <CardTitle className="text-lg">{collection.name}</CardTitle>
+                    <div className="flex-1">
+                      <CardTitle className="text-lg flex items-center gap-2">
+                        <BookOpen className="h-5 w-5" />
+                        {collection.name}
+                      </CardTitle>
                       {collection.description && (
                         <CardDescription className="mt-2">
                           {collection.description}
                         </CardDescription>
                       )}
                     </div>
-                    <div className="flex gap-1">
+                    <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
                       <Button
                         variant="ghost"
                         size="sm"
@@ -307,9 +331,14 @@ const Collections: React.FC = () => {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-gray-500">
-                    Created {new Date(collection.created_at).toLocaleDateString()}
-                  </p>
+                  <div className="flex justify-between items-center">
+                    <p className="text-sm text-gray-500">
+                      Created {new Date(collection.created_at).toLocaleDateString()}
+                    </p>
+                    <p className="text-sm font-medium text-blue-600">
+                      {collection.article_count} article{collection.article_count !== 1 ? 's' : ''}
+                    </p>
+                  </div>
                 </CardContent>
               </Card>
             ))}
