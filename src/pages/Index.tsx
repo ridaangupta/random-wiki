@@ -266,7 +266,7 @@ const Index = () => {
             href="https://www.linkedin.com/in/ridaan-gupta-51966b305/" 
             target="_blank" 
             rel="noopener noreferrer"
-            className="text-gray-500 hover:text-gray-700 transition-colors"
+            className="text-gray-500 hover:text-gray-700 transition-colors underline"
           >
             Ridaan Gupta
           </a>
