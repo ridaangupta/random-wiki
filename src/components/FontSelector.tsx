@@ -26,7 +26,7 @@ const fonts = [
 ];
 
 const FontSelector = () => {
-  const [selectedFont, setSelectedFont] = useState('font-sans');
+  const [selectedFont, setSelectedFont] = useState('font-calibri');
 
   useEffect(() => {
     // Apply the selected font to the entire document
