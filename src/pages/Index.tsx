@@ -184,77 +184,94 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center p-4">
-      <div className="text-center space-y-8 max-w-md mx-auto">
-        {/* User Menu - Top Right */}
-        <div className="absolute top-4 right-4">
-          {user ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="flex items-center gap-2">
-                  <User className="h-4 w-4" />
-                  {user.email?.split('@')[0]}
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem disabled className="text-xs text-gray-500">
-                  {user.email}
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleCollectionsClick}>
-                  <FolderOpen className="mr-2 h-4 w-4" />
-                  Collections
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleSignOut}>
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Sign Out
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : (
-            <Button 
-              variant="outline" 
-              onClick={() => setAuthModalOpen(true)}
-              className="hover:bg-blue-50 hover:border-blue-200 transition-colors"
-            >
-              Sign In
-            </Button>
-          )}
-        </div>
+    <div className="min-h-screen bg-white flex flex-col">
+      <div className="flex-1 flex items-center justify-center p-4">
+        <div className="text-center space-y-8 max-w-md mx-auto">
+          {/* User Menu - Top Right */}
+          <div className="absolute top-4 right-4">
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="flex items-center gap-2">
+                    <User className="h-4 w-4" />
+                    {user.email?.split('@')[0]}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem disabled className="text-xs text-gray-500">
+                    {user.email}
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleCollectionsClick}>
+                    <FolderOpen className="mr-2 h-4 w-4" />
+                    Collections
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleSignOut}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button 
+                variant="outline" 
+                onClick={() => setAuthModalOpen(true)}
+                className="hover:bg-blue-50 hover:border-blue-200 transition-colors"
+              >
+                Sign In
+              </Button>
+            )}
+          </div>
 
-        <div className="space-y-4">
-          <h1 className="text-4xl font-light text-gray-900 tracking-tight">
-            🔍 Random Wiki
-          </h1>
-          <p className="text-lg text-gray-600 font-light">
-            Discover fascinating articles from the world's largest encyclopedia
-          </p>
-          {!user && (
-            <p 
-              className="text-sm text-blue-600 cursor-pointer hover:text-blue-800 transition-colors"
-              onClick={() => setAuthModalOpen(true)}
-            >
-              Sign in to save articles to collections
+          <div className="space-y-4">
+            <h1 className="text-4xl font-light text-gray-900 tracking-tight">
+              🔍 Random Wiki
+            </h1>
+            <p className="text-lg text-gray-600 font-light">
+              Discover fascinating articles from the world's largest encyclopedia
             </p>
-          )}
+            {!user && (
+              <p 
+                className="text-sm text-blue-600 cursor-pointer hover:text-blue-800 transition-colors"
+                onClick={() => setAuthModalOpen(true)}
+              >
+                Sign in to save articles to collections
+              </p>
+            )}
+          </div>
+          
+          <Button
+            onClick={handleDiscoverArticle}
+            disabled={isLoading}
+            className="px-8 py-6 text-lg font-medium bg-blue-600 hover:bg-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                Discovering...
+              </>
+            ) : (
+              'Discover Random Article'
+            )}
+          </Button>
         </div>
-        
-        <Button
-          onClick={handleDiscoverArticle}
-          disabled={isLoading}
-          className="px-8 py-6 text-lg font-medium bg-blue-600 hover:bg-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-        >
-          {isLoading ? (
-            <>
-              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-              Discovering...
-            </>
-          ) : (
-            'Discover Random Article'
-          )}
-        </Button>
       </div>
+      
+      {/* Footer */}
+      <footer className="p-4 text-center">
+        <p className="text-sm text-gray-400 font-light">
+          Built by{' '}
+          <a 
+            href="https://www.linkedin.com/in/ridaan-gupta-51966b305/" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-gray-500 hover:text-gray-700 transition-colors"
+          >
+            Ridaan Gupta
+          </a>
+        </p>
+      </footer>
       
       <AuthModal open={authModalOpen} onOpenChange={setAuthModalOpen} />
     </div>
