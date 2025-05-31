@@ -21,6 +21,18 @@ export default {
 		extend: {
 			fontFamily: {
 				sans: ['Inter', 'system-ui', 'sans-serif'],
+				'times': ['Times New Roman', 'Times', 'serif'],
+				'calibri': ['Calibri', 'system-ui', 'sans-serif'],
+				'inter': ['Inter', 'system-ui', 'sans-serif'],
+				'roboto': ['Roboto', 'system-ui', 'sans-serif'],
+				'open-sans': ['Open Sans', 'system-ui', 'sans-serif'],
+				'lato': ['Lato', 'system-ui', 'sans-serif'],
+				'source-sans': ['Source Sans Pro', 'system-ui', 'sans-serif'],
+				'montserrat': ['Montserrat', 'system-ui', 'sans-serif'],
+				'poppins': ['Poppins', 'system-ui', 'sans-serif'],
+				'nunito': ['Nunito', 'system-ui', 'sans-serif'],
+				'playfair': ['Playfair Display', 'serif'],
+				'merriweather': ['Merriweather', 'serif'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',
