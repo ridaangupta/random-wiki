@@ -274,7 +274,7 @@ const Collections: React.FC = () => {
   return (
     <div 
       ref={containerRef}
-      className="min-h-screen bg-gray-50 touch-pan-y"
+      className="bg-gray-50 touch-pan-y"
     >
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">

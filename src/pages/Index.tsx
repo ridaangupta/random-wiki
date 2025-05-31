@@ -258,21 +258,6 @@ const Index = () => {
         </div>
       </div>
       
-      {/* Footer */}
-      <footer className="p-4 text-center">
-        <p className="text-sm text-gray-400 font-light">
-          Built by{' '}
-          <a 
-            href="https://www.linkedin.com/in/ridaan-gupta-51966b305/" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="text-gray-500 hover:text-gray-700 transition-colors underline"
-          >
-            Ridaan Gupta
-          </a>
-        </p>
-      </footer>
-      
       <AuthModal open={authModalOpen} onOpenChange={setAuthModalOpen} />
     </div>
   );
