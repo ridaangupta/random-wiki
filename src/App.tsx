@@ -5,7 +5,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
-import FontSelector from "@/components/FontSelector";
 import Index from "./pages/Index";
 import Collections from "./pages/Collections";
 import CollectionDetail from "./pages/CollectionDetail";
@@ -19,8 +18,7 @@ const App = () => (
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <FontSelector />
-        <div className="min-h-screen flex flex-col">
+        <div className="min-h-screen flex flex-col font-calibri">
           <div className="flex-1">
             <BrowserRouter>
               <Routes>
