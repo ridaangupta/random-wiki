@@ -1,73 +1,85 @@
-# Welcome to your Lovable project
+# Random Wiki
 
-## Project info
+A full-stack web application that fetches random Wikipedia articles and uses AI to create digestible summaries for users to discover and save interesting content.
 
-**URL**: https://lovable.dev/projects/6f69df7a-4e4d-419d-9f4b-45e310bce206
+🌐 **Live Website:** [random-wiki.com](https://random-wiki.com)
 
-## How can I edit this code?
+## What This Project Does
 
-There are several ways of editing your application.
+As a junior developer exploring full-stack development, I built this tool to solve a simple problem: Wikipedia articles can be overwhelming and long. Random Wiki fetches random Wikipedia articles, summarizes them using AI, and presents them in a scrollable, user-friendly format. Users can save articles they find interesting for later reading.
 
-**Use Lovable**
+This project helped me understand how different parts of a web application work together - from user authentication to API integration to database management.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/6f69df7a-4e4d-419d-9f4b-45e310bce206) and start prompting.
+## Features
 
-Changes made via Lovable will be committed automatically to this repo.
+- **Random Article Discovery**: Fetches random Wikipedia articles using the Wikipedia API
+- **AI-Powered Summaries**: Automatically generates concise summaries of articles for quick reading
+- **User Authentication**: Secure login system allowing users to create accounts and manage their saved content
+- **Save Functionality**: Users can save articles they find interesting to their personal collection
+- **Smooth Scrolling Experience**: Implemented advanced caching techniques to ensure seamless browsing
+- **Responsive Design**: Works across different devices and screen sizes
 
-**Use your preferred IDE**
+## Technologies Used
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+This project gave me hands-on experience with modern web development technologies:
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Frontend
+- **HTML**: Structure and semantic markup
+- **CSS**: Styling and responsive design
+- **JavaScript**: Interactive functionality and API communication
 
-Follow these steps:
+### Backend
+- **Node.js**: Server-side JavaScript runtime
+- **Express.js**: Web application framework (likely used with Node.js)
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+### Database
+- **Supabase**: PostgreSQL database with built-in authentication and real-time features
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+### APIs & External Services
+- **Wikipedia API**: For fetching random articles and content
+- **AI Service**: For generating article summaries (integrated into the backend)
 
-# Step 3: Install the necessary dependencies.
-npm i
+### Hosting & Deployment
+- **IONOS**: Web hosting platform
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+## What I Learned
 
-**Edit a file directly in GitHub**
+Building this project taught me several important full-stack development concepts:
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+1. **API Integration**: How to work with external APIs (Wikipedia) and handle async requests
+2. **User Authentication**: Implementing secure login/signup functionality with Supabase
+3. **Database Design**: Structuring data for user accounts and saved articles
+4. **Caching Strategies**: Implementing advanced caching to improve performance and user experience
+5. **Frontend-Backend Communication**: How the client and server communicate effectively
+6. **Deployment**: Taking a project from local development to a live, hosted website
 
-**Use GitHub Codespaces**
+## Architecture Overview
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+The application follows a traditional client-server architecture:
 
-## What technologies are used for this project?
+1. **Frontend** makes requests to the backend API
+2. **Backend** handles authentication, fetches data from Wikipedia API, processes it through AI for summaries
+3. **Database** stores user information and saved articles
+4. **Caching layer** improves performance by storing frequently accessed data
 
-This project is built with:
+## Key Challenges Solved
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+- **Performance**: Implemented caching to handle multiple API calls efficiently
+- **User Experience**: Created smooth scrolling and loading states
+- **Data Management**: Structured the database to handle user relationships with saved articles
+- **Authentication Flow**: Integrated Supabase auth with the custom Node.js backend
 
-## How can I deploy this project?
+## Getting Started
 
-Simply open [Lovable](https://lovable.dev/projects/6f69df7a-4e4d-419d-9f4b-45e310bce206) and click on Share -> Publish.
+[Include installation and setup instructions here]
 
-## Can I connect a custom domain to my Lovable project?
+## Future Improvements
 
-Yes, you can!
+- Add article categories and filtering
+- Implement social features like sharing
+- Add more customization options for summaries
+- Mobile app version
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+---
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+This project represents my journey in learning full-stack development, from understanding how APIs work to implementing user authentication and optimizing performance. Each challenge taught me something new about building real-world web applications.
